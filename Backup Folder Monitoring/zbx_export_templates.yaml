@@ -1,0 +1,41 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: aea23489ce3a49b6806ebb28e0cda430
+      name: Windows
+  templates:
+    - uuid: b285df643b5c49fa8f5bc4566f94c598
+      template: 'Backup Folder Monitoring'
+      name: 'Backup Folder Monitoring'
+      groups:
+        - name: Windows
+      discovery_rules:
+        - uuid: 2748f774532a4e59842dec3fe94a26fb
+          name: 'Discover backup folders'
+          key: backup.subfolders.discovery
+          delay: 1h
+          lifetime_type: DELETE_IMMEDIATELY
+          item_prototypes:
+            - uuid: 0d6976d5383b43f7b1c1537d3ac05ffc
+              name: 'Backup exists for {#FOLDERNAME}'
+              key: 'vfs.file.exists[{$BACKUP_PATH}\{#FOLDERNAME}\{$BACKUP_LOG},file]'
+              trigger_prototypes:
+                - uuid: 102d365bd06b490a9e40df7fec64778e
+                  expression: 'last(/Backup Folder Monitoring/vfs.file.exists[{$BACKUP_PATH}\{#FOLDERNAME}\{$BACKUP_LOG},file])=0'
+                  name: 'Backup {#FOLDERNAME} doesn''t exist'
+                  priority: HIGH
+            - uuid: 2454d98696bf47b1be23d8311461cf49
+              name: 'Backup last modified time for {#FOLDERNAME}'
+              key: 'vfs.file.time[{$BACKUP_PATH}\{#FOLDERNAME}\{$BACKUP_LOG},modify]'
+              trigger_prototypes:
+                - uuid: 31edeb85801943e3aed3318aa8a99a1e
+                  expression: 'last(/Backup Folder Monitoring/vfs.file.time[{$BACKUP_PATH}\{#FOLDERNAME}\{$BACKUP_LOG},modify])<now()-{$BACKUP.OLDER.THAN}'
+                  name: 'Backup {#FOLDERNAME} is older than {$BACKUP.OLDER.THAN}'
+                  priority: AVERAGE
+      macros:
+        - macro: '{$BACKUP.OLDER.THAN}'
+          value: '90000'
+        - macro: '{$BACKUP_LOG}'
+          value: zabbix.txt
+        - macro: '{$BACKUP_PATH}'
+          value: 'D:\backup'
