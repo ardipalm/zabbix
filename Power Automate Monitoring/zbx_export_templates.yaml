@@ -1,0 +1,50 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 4f5be8b5f6ba497987d1dbb7321dbf36
+      template: 'Power Automate monitoring'
+      name: 'Power Automate monitoring'
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: aa5a6644502e4956b94b8277a2e21d8d
+          name: 'Discover Power Automate Flows'
+          key: powerautomate.discovery
+          delay: 1h
+          lifetime_type: DELETE_IMMEDIATELY
+          item_prototypes:
+            - uuid: c0059f6c75f5439c9871b976bc267a9b
+              name: 'Flow "{#FLOWNAME}" enabled status'
+              key: 'powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"]'
+              delay: 60m
+              timeout: 120s
+              trigger_prototypes:
+                - uuid: 19949e49fedb49a18cfd75de3e3ea007
+                  expression: 'last(/Power Automate monitoring/powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"])=0'
+                  name: 'Flow "{#FLOWNAME}" turned off'
+                  url_name: 'Flow run'
+                  url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
+                  priority: HIGH
+            - uuid: b3746530c3704402849305f9232208d2
+              name: 'Flow "{#FLOWNAME}" run status'
+              key: 'powerautomate.flowstatus["{#ENVID}","{#ENTID}"]'
+              delay: 60m
+              timeout: 120s
+              trigger_prototypes:
+                - uuid: 7a629ff30a944ea0a15167c82fce9156
+                  expression: 'last(/Power Automate monitoring/powerautomate.flowstatus["{#ENVID}","{#ENTID}"])=1'
+                  name: 'Flow "{#FLOWNAME}" run failed in the last 2h'
+                  url_name: 'Flow run'
+                  url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
+                  priority: HIGH
+          trigger_prototypes:
+            - uuid: 72900d0e6a2447e79ba5beaceb640126
+              expression: 'nodata(/Power Automate monitoring/powerautomate.flowstatus["{#ENVID}","{#ENTID}"],7200)=1 or nodata(/Power Automate monitoring/powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"],7200)=1'
+              name: 'Flow "{#FLOWNAME}" no data'
+              url_name: 'Flow run'
+              url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
+              priority: HIGH
+          timeout: 30s
