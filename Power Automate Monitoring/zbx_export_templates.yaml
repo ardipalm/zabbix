@@ -12,51 +12,54 @@ zabbix_export:
       discovery_rules:
         - uuid: aa5a6644502e4956b94b8277a2e21d8d
           name: 'Discover Power Automate Flows'
-          key: powerautomate.discovery
+          key: 'powerautomate.discovery["{$PAM.USERID}","{$PAM.SECRETFILEPATH}"]'
           delay: 1h
           lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
             - uuid: a138323f429f4cd893f17167f0d36d35
               name: 'Flow "{#FLOWNAME}" connections status'
-              key: 'powerautomate.flowconnectionsstatus["{#ENVID}","{#ENTID}"]'
+              key: 'powerautomate.flowconnectionsstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"]'
               delay: 60m
               timeout: 120s
               trigger_prototypes:
                 - uuid: 8351290ba95e47af82f17faa39c7e557
-                  expression: 'last(/Power Automate monitoring/powerautomate.flowconnectionsstatus["{#ENVID}","{#ENTID}"])=0'
+                  expression: 'last(/Power Automate monitoring/powerautomate.flowconnectionsstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"])=0'
                   name: 'Flow "{#FLOWNAME}" connections failed'
                   url_name: 'Flow run'
                   url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
                   priority: HIGH
             - uuid: c0059f6c75f5439c9871b976bc267a9b
               name: 'Flow "{#FLOWNAME}" enabled status'
-              key: 'powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"]'
+              key: 'powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"]'
               delay: 60m
               timeout: 120s
               trigger_prototypes:
                 - uuid: 19949e49fedb49a18cfd75de3e3ea007
-                  expression: 'last(/Power Automate monitoring/powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"])=0'
+                  expression: 'last(/Power Automate monitoring/powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"])=0'
                   name: 'Flow "{#FLOWNAME}" turned off'
                   url_name: 'Flow run'
                   url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
                   priority: HIGH
             - uuid: b3746530c3704402849305f9232208d2
               name: 'Flow "{#FLOWNAME}" run status'
-              key: 'powerautomate.flowstatus["{#ENVID}","{#ENTID}"]'
+              key: 'powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"]'
               delay: 60m
               timeout: 120s
               trigger_prototypes:
                 - uuid: 7a629ff30a944ea0a15167c82fce9156
-                  expression: 'last(/Power Automate monitoring/powerautomate.flowstatus["{#ENVID}","{#ENTID}"])=1'
+                  expression: 'last(/Power Automate monitoring/powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"])=1'
                   name: 'Flow "{#FLOWNAME}" run failed in the last 2h'
                   url_name: 'Flow run'
                   url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
                   priority: HIGH
           trigger_prototypes:
             - uuid: 72900d0e6a2447e79ba5beaceb640126
-              expression: 'nodata(/Power Automate monitoring/powerautomate.flowstatus["{#ENVID}","{#ENTID}"],7200)=1 or nodata(/Power Automate monitoring/powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"],7200)=1'
+              expression: 'nodata(/Power Automate monitoring/powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"],7200)=1 or nodata(/Power Automate monitoring/powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"],7200)=1'
               name: 'Flow "{#FLOWNAME}" no data'
               url_name: 'Flow run'
               url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
               priority: HIGH
           timeout: 30s
+      macros:
+        - macro: '{$PAM.SECRETFILEPATH}'
+        - macro: '{$PAM.USERID}'

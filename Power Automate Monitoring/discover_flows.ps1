@@ -1,10 +1,19 @@
 ﻿#Install-Module -Name Microsoft.PowerApps.Administration.PowerShell
 # Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
 param (
-    [string]$UserId,
-    [string]$SecretFilePath,
+    [string]$UserIdIn,
+    [string]$SecretFilePathIn,
     [string]$ExcludeRegex
 )
+
+#$SecretFilePath="C:\skriptid\Zabbix\Flow monitoring\jk3djklsjdajakla.txt"
+
+$SecretFilePath = $SecretFilePathIn -replace '/', '\'
+$UserId = $UserIdIn -replace '%40', '@'
+
+#Write-Host $SecretFilePathIn
+#Write-Host $SecretFilePath
+#Write-Host $UserId
 
 Import-Module Microsoft.PowerApps.Administration.PowerShell 3>$null
 Import-Module Microsoft.PowerApps.PowerShell 3>$null

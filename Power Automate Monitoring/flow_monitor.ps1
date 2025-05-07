@@ -1,11 +1,14 @@
 ﻿param (
-    [string]$UserId,
-    [string]$SecretFilePath,
+    [string]$UserIdIn,
+    [string]$SecretFilePathIn,
     [string]$EnvId,
     [string]$FlowId,
     [ValidateSet("status", "runcheck")]
     [string]$Mode
 )
+
+$SecretFilePath = $SecretFilePathIn -replace '/', '\'
+$UserId = $UserIdIn -replace '%40', '@'
 
 # Import required modules, suppressing warnings
 Import-Module Microsoft.PowerApps.Administration.PowerShell 3>$null

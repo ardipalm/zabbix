@@ -1,9 +1,12 @@
 ﻿param (
-    [string]$UserId,            # The user to filter connections for
-    [string]$SecretFilePath,     # Path to the file containing the password
+    [string]$UserIdIn,            # The user to filter connections for
+    [string]$SecretFilePathIn,     # Path to the file containing the password
     [string]$EnvId,               # The environment ID to check
     [string]$FlowId
 )
+
+$SecretFilePath = $SecretFilePathIn -replace '/', '\'
+$UserId = $UserIdIn -replace '%40', '@'
 
 # Suppress module import warnings
 Import-Module Microsoft.PowerApps.Administration.PowerShell 3>$null

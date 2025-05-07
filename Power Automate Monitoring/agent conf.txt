@@ -1,4 +1,5 @@
-UserParameter=powerautomate.discovery,powershell -File "C:\skriptid\Zabbix\Flow monitoring\discover_flows.ps1" "Bcs.intranet@bcs.ee" "C:\skriptid\Zabbix\Flow monitoring\jk3djklsjdajakla.txt" "^x_"
-UserParameter=powerautomate.flowstatus[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\flow_monitor.ps1" "Bcs.intranet@bcs.ee" "C:\skriptid\Zabbix\Flow monitoring\jk3djklsjdajakla.txt" "$1" "$2" "runcheck"
-UserParameter=powerautomate.flowenabledstatus[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\flow_monitor.ps1" "Bcs.intranet@bcs.ee" "C:\skriptid\Zabbix\Flow monitoring\jk3djklsjdajakla.txt" "$1" "$2" "status"
-UserParameter=powerautomate.flowconnectionsstatus[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\connections_monitor.ps1" "Bcs.intranet@bcs.ee" "C:\skriptid\Zabbix\Flow monitoring\jk3djklsjdajakla.txt" "$1" "$2"
+## Power Automate monitoring ##
+UserParameter=powerautomate.discovery[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\discover_flows.ps1" "$1" "$2" "^x_"
+UserParameter=powerautomate.flowstatus[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\flow_monitor.ps1" "$1" "$2" "$3" "$4" "runcheck"
+UserParameter=powerautomate.flowenabledstatus[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\flow_monitor.ps1" "$1" "$2" "$3" "$4" "status"
+UserParameter=powerautomate.flowconnectionsstatus[*],powershell -File "C:\skriptid\Zabbix\Flow monitoring\connections_monitor.ps1" "$1" "$2" "$3" "$4"
