@@ -1,0 +1,28 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: cdcbb20efaa44d038b5c886be5897c00
+      template: 'Windows Disk Space Used'
+      name: 'Windows Disk Space Used'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 715f9d738e8547768e0e33e3a47a8e97
+          name: 'Disk {$PATH} space used in %'
+          key: 'vfs.fs.size[{$PATH},pused]'
+          delay: 15m
+          triggers:
+            - uuid: ea9ffda4852c484291dd3d38e4f3b77b
+              expression: 'last(/Windows Disk Space Used/vfs.fs.size[{$PATH},pused])>90'
+              name: 'Disk {$PATH} space used > 90%'
+              priority: AVERAGE
+            - uuid: 0294603950694087a82e05160150c5a7
+              expression: 'last(/Windows Disk Space Used/vfs.fs.size[{$PATH},pused])>95'
+              name: 'Disk {$PATH} space used > 95%'
+              priority: HIGH
+      macros:
+        - macro: '{$PATH}'
+          value: 'C:\'
