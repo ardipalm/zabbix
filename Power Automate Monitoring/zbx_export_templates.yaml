@@ -16,6 +16,18 @@ zabbix_export:
           delay: 1h
           lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
+            - uuid: a138323f429f4cd893f17167f0d36d35
+              name: 'Flow "{#FLOWNAME}" connections status'
+              key: 'powerautomate.flowconnectionsstatus["{#ENVID}","{#ENTID}"]'
+              delay: 60m
+              timeout: 120s
+              trigger_prototypes:
+                - uuid: 8351290ba95e47af82f17faa39c7e557
+                  expression: 'last(/Power Automate monitoring/powerautomate.flowconnectionsstatus["{#ENVID}","{#ENTID}"])=0'
+                  name: 'Flow "{#FLOWNAME}" connections failed'
+                  url_name: 'Flow run'
+                  url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
+                  priority: HIGH
             - uuid: c0059f6c75f5439c9871b976bc267a9b
               name: 'Flow "{#FLOWNAME}" enabled status'
               key: 'powerautomate.flowenabledstatus["{#ENVID}","{#ENTID}"]'
