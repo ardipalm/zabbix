@@ -1,0 +1,81 @@
+zabbix_export:
+  version: '7.2'
+  media_types:
+    - name: 'Home Assistant Webhook'
+      type: WEBHOOK
+      parameters:
+        - name: alert_message
+          value: '{ALERT.MESSAGE}'
+        - name: alert_subject
+          value: '{ALERT.SUBJECT}'
+        - name: webhook_url
+          value: 'https://tammsaare.hybridit.eu/api/webhook/-nx4zE0hewobj8Abxgm02YYbR'
+      script: |
+        function sendMessage(payload, params) {
+            var request = new HttpRequest();
+        
+            request.addHeader('Content-Type: application/json');
+        
+            // Optional: Add token if passed
+            if (params.token) {
+                request.addHeader('Authorization: Bearer ' + params.token);
+            }
+        
+            var response = request.post(params.webhook_url, JSON.stringify(payload));
+        
+            if (request.getStatus() !== 200) {
+                throw "Home Assistant webhook failed: " + response;
+            }
+        }
+        
+        function validateParams(params) {
+            if (typeof params.webhook_url !== 'string' || params.webhook_url.trim() === '') {
+                throw 'Field "webhook_url" cannot be empty';
+            }
+        
+            if (typeof params.alert_subject !== 'string' || typeof params.alert_message !== 'string') {
+                throw 'Alert subject and message must be strings';
+            }
+        
+            // Optional: token check
+            if (params.token && typeof params.token !== 'string') {
+                throw 'If used, token must be a string';
+            }
+        }
+        
+        try {
+            var params = JSON.parse(value);
+            validateParams(params);
+        
+            var payload = {
+                message: params.alert_subject + "\n" + params.alert_message
+            };
+        
+            sendMessage(payload, params);
+            return 'OK';
+        }
+        catch (err) {
+            Zabbix.log(4, '[ Home Assistant Webhook ] Failed: ' + err);
+            throw 'Home Assistant notification failed: ' + err;
+        }
+      message_templates:
+        - event_source: TRIGGERS
+          operation_mode: PROBLEM
+          subject: 'Problem: {EVENT.NAME}'
+          message: |
+            Host: {HOST.NAME}
+            Operational data: {EVENT.OPDATA}
+            {TRIGGER.URL}
+        - event_source: TRIGGERS
+          operation_mode: RECOVERY
+          subject: 'Resolved {EVENT.NAME}'
+          message: |
+            Host: {HOST.NAME}
+            {TRIGGER.URL}
+        - event_source: TRIGGERS
+          operation_mode: UPDATE
+          subject: 'Updated problem {EVENT.NAME}'
+          message: |
+            {USER.FULLNAME} {EVENT.UPDATE.ACTION} problem
+            {EVENT.UPDATE.MESSAGE}
+            Current problem status is {EVENT.STATUS}, acknowledged: {EVENT.ACK.STATUS}.

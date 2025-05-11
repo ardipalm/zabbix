@@ -1,0 +1,16 @@
+alias: Zabix Webhook
+description: ""
+triggers:
+  - trigger: webhook
+    allowed_methods:
+      - POST
+      - PUT
+    local_only: false
+    webhook_id: "-nx4zE0hewobj8Abxgm02YYbR"
+conditions: []
+actions:
+  - action: notify.mobile_app_ardis_iphone
+    metadata: {}
+    data:
+      message: "{{ trigger.json.message }}"
+mode: single
