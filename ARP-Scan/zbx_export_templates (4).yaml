@@ -1,0 +1,62 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: a5ce643571644cec9480ea7c0679f0e5
+      template: 'Template ARP Monitoring'
+      name: 'Template ARP Monitoring'
+      description: |
+        Rafael Gustavo Gassner 02/2021
+        This script activelly scans arp and sends to zabbix server using zabbix_sender.
+        arp-scan should be installed and interfaces variable should
+         be configured for your environment.
+        You will want to run every 10 minutes or so, using crontab.
+        First run(s) might not populate data, since LLD items
+         are still beeing created in zabbix server.
+        With the script and template, you will be able to:
+         - Detect newly connected devices on the network.
+         - Have a history of which macs were used by which ips and vice versa.
+         - Detect if there are multiple ips associated to the same mac.
+         - Detect if there are multiple macs associated to the same ip address.
+         - Identify the active period on the network for each device.
+        Since this is designed for a small environment, the trigger for
+        new device has no recovery expression, and should be manually disabled.
+        You can configure the "new device" trigger disabled for initial run.
+        After that you could disable each trigger mannualy when you have
+        recognized the new device as not beeing a rogue one.
+        In the zabbix template, "Allowed hosts" variable should be configured
+         for your environment in item prototypes and in discovery rule.
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: 4560e32839fa433f9f5d85f5e977f372
+          name: 'Address discovery'
+          type: TRAP
+          key: arp.discovery
+          allowed_hosts: 100.89.244.44/32
+          lifetime: 30d
+          enabled_lifetime_type: DISABLE_NEVER
+          item_prototypes:
+            - uuid: f02b8a6f2ded491c8cce68f4daff8244
+              name: 'Ip address(es) associated with mac {#HWADDRESS}'
+              type: TRAP
+              key: 'arp.macIps[{#HWADDRESS}]'
+              history: 7d
+              value_type: TEXT
+              allowed_hosts: 100.89.244.44/32
+              tags:
+                - tag: Application
+                  value: ARP
+              trigger_prototypes:
+                - uuid: 205fe9a880f046fa9c008081496f0194
+                  expression: 'change(/Template ARP Monitoring/arp.macIps[{#HWADDRESS}]) and length(last(/Template ARP Monitoring/arp.macIps[{#HWADDRESS}]))>0'
+                  name: 'Ip address associated with mac {#HWADDRESS} is changed'
+                  priority: WARNING
+                  manual_close: 'YES'
+          lld_macro_paths:
+            - lld_macro: '{#HWADDRESS}'
+              path: $.HWAddress
+            - lld_macro: '{#IPADDRESS}'
+              path: $.ipAddress
