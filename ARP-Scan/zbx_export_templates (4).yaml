@@ -55,6 +55,12 @@ zabbix_export:
                   name: 'Ip address associated with mac {#HWADDRESS} is changed'
                   priority: WARNING
                   manual_close: 'YES'
+                - uuid: 30be8128e93f4e9d8308eaf5639ac6eb
+                  expression: 'count(/Template ARP Monitoring/arp.macIps[{#HWADDRESS}],30d)=1'
+                  recovery_mode: NONE
+                  name: 'New device using mac {#HWADDRESS} and IP {#IPADDRESS} detected by {HOST.HOST} arp table.'
+                  priority: INFO
+                  manual_close: 'YES'
           lld_macro_paths:
             - lld_macro: '{#HWADDRESS}'
               path: $.HWAddress
