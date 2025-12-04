@@ -20,7 +20,7 @@ zabbix_export:
               name: 'Flow "{#FLOWNAME}" connections status'
               key: 'powerautomate.flowconnectionsstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"]'
               delay: 60m
-              timeout: 120s
+              timeout: 180s
               trigger_prototypes:
                 - uuid: 8351290ba95e47af82f17faa39c7e557
                   expression: 'last(/Power Automate monitoring/powerautomate.flowconnectionsstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"])=0'
@@ -32,7 +32,7 @@ zabbix_export:
               name: 'Flow "{#FLOWNAME}" enabled status'
               key: 'powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"]'
               delay: 60m
-              timeout: 120s
+              timeout: 180s
               trigger_prototypes:
                 - uuid: 19949e49fedb49a18cfd75de3e3ea007
                   expression: 'last(/Power Automate monitoring/powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"])=0'
@@ -44,22 +44,23 @@ zabbix_export:
               name: 'Flow "{#FLOWNAME}" run status'
               key: 'powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"]'
               delay: 60m
-              timeout: 120s
+              timeout: 180s
               trigger_prototypes:
                 - uuid: 7a629ff30a944ea0a15167c82fce9156
                   expression: 'last(/Power Automate monitoring/powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"])=1'
-                  name: 'Flow "{#FLOWNAME}" run failed in the last 2h'
+                  name: 'Flow "{#FLOWNAME}" run failed in the last 24h'
                   url_name: 'Flow run'
                   url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
                   priority: HIGH
+                  manual_close: 'YES'
           trigger_prototypes:
             - uuid: 72900d0e6a2447e79ba5beaceb640126
-              expression: 'nodata(/Power Automate monitoring/powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"],7200)=1 or nodata(/Power Automate monitoring/powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"],7200)=1'
+              expression: 'nodata(/Power Automate monitoring/powerautomate.flowstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"],43200)=1 or nodata(/Power Automate monitoring/powerautomate.flowenabledstatus["{$PAM.USERID}","{$PAM.SECRETFILEPATH}","{#ENVID}","{#ENTID}"],43200)=1'
               name: 'Flow "{#FLOWNAME}" no data'
               url_name: 'Flow run'
               url: 'https://make.powerautomate.com/environments/{#ENVID}/flows/{#FLOWID}/runs'
               priority: HIGH
-          timeout: 30s
+          timeout: 60s
       macros:
         - macro: '{$PAM.SECRETFILEPATH}'
         - macro: '{$PAM.USERID}'

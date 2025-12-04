@@ -1,4 +1,6 @@
-﻿param (
+﻿# flow_monitor.ps1 "$1" "$2" "$3" "$4" "runcheck"
+# flow_monitor.ps1 "siseveeb%40harku.ee" "C:/Skriptid/Zabbix/Flow monitoring/wdhjklsjdsldjsdjsl.txt" "Default-a0110b71-d476-43c1-921b-c0826e2bc143" "82e7d940-9a08-f011-bae2-7c1e5234c2a0" "runcheck"
+param (
     [string]$UserIdIn,
     [string]$SecretFilePathIn,
     [string]$EnvId,
@@ -7,6 +9,13 @@
     [string]$Mode
 )
 
+#$UserIdIn = "siseveeb%40harku.ee"
+#$SecretFilePathIn = "C:/Skriptid/Zabbix/Flow monitoring/wdhjklsjdsldjsdjsl.txt"
+#$EnvId = "Default-a0110b71-d476-43c1-921b-c0826e2bc143"
+#$FlowId =  "82e7d940-9a08-f011-bae2-7c1e5234c2a0"
+#$Mode = "runcheck"
+
+# Normaliseeri sisendid
 $SecretFilePath = $SecretFilePathIn -replace '/', '\'
 $UserId = $UserIdIn -replace '%40', '@'
 
@@ -14,7 +23,9 @@ $UserId = $UserIdIn -replace '%40', '@'
 Import-Module Microsoft.PowerApps.Administration.PowerShell 3>$null
 Import-Module Microsoft.PowerApps.PowerShell 3>$null
 
-# Read password and log in
+
+# Sisselogimine
+# NB! Eeldab, et failis on eelnevalt AES-keyga krüpteeritud secure string (ConvertFrom/To-SecureString -Key)
 $pass = Get-Content $SecretFilePath | ConvertTo-SecureString -Key (1..16)
 Add-PowerAppsAccount -Username $UserId -Password $pass
 
@@ -27,8 +38,8 @@ switch ($Mode) {
             exit 2
         }
 
-        # Check flow runs in the last 2 hours
-        $Start = (Get-Date).AddHours(-2)
+        # Check flow runs in the last 24 hours
+        $Start = (Get-Date).AddHours(-24)
         $End = Get-Date
 
         $runs = Get-FlowRun -EnvironmentName $EnvId -FlowName $FlowId |
@@ -38,7 +49,7 @@ switch ($Mode) {
                 }
 
         $hasFailure = $runs | Where-Object { $_.Status -eq 'Failed' }
-        Write-Output $([int]($hasFailure -ne $null))
+        Write-Output $([int][bool]($hasFailure))
     }
 
     "status" {
